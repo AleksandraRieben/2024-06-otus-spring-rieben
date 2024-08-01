@@ -44,8 +44,7 @@ class TestServiceImplTest {
         testService.executeTest();
 
         // Assert
-        verify(ioService).printLine("");
-        verify(ioService).printFormattedLine("Please answer the questions below%n");
+        verify(ioService).printFormattedLine("Please answer the questions below:%n");
         verify(ioService).printFormattedLine("How should resources be loaded form jar in Java?");
         verify(ioService).printFormattedLine("ClassLoader#geResourceAsStream or ClassPathResource#getInputStream");
         verify(ioService).printFormattedLine("ClassLoader#geResource#getFile + FileReader");
