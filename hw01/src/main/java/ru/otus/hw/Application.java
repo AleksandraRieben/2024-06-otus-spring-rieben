@@ -1,15 +1,18 @@
 package ru.otus.hw;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import ru.otus.hw.service.TestRunnerService;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import ru.otus.hw.service.TestRunnerServiceImpl;
 
+@ComponentScan
+@PropertySource("classpath:application.properties")
+@Configuration
 public class Application {
     public static void main(String[] args) {
-
-        // Прописать бины в spring-context.xml и создать контекст на его основе
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
-        TestRunnerService testRunnerService = context.getBean(TestRunnerServiceImpl.class);
+        var context = new AnnotationConfigApplicationContext(Application.class);
+        var testRunnerService = context.getBean(TestRunnerServiceImpl.class);
         testRunnerService.run();
     }
 }

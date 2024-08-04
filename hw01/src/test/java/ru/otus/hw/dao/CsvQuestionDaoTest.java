@@ -10,12 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CsvQuestionDaoTest {
-
-    private static final String FILE_NAME = "questions.csv";
-
     @Test
     void findAll() {
-        var testFileNameProvider = new AppProperties(FILE_NAME);
+        var testFileNameProvider = new AppProperties();
         var repository = new CsvQuestionDao(testFileNameProvider);
         List<Question> questions = repository.findAll();
         assertNotNull(repository);
