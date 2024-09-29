@@ -11,9 +11,9 @@ public class StudentServiceImpl implements StudentService{
     private final IOService ioService;
 
     @Override
-    public Student createStudent() {
-        var firstName = ioService.readString("Please input your first name");
-        var lastName = ioService.readString("Please input your last name");
+    public Student determineCurrentStudent() {
+        var firstName = ioService.readStringWithPrompt("Please input your first name");
+        var lastName = ioService.readStringWithPrompt("Please input your last name");
         return new Student(firstName, lastName);
     }
 }

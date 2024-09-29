@@ -3,25 +3,28 @@ package ru.otus.hw.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.otus.hw.dao.QuestionDao;
 import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
+import ru.otus.hw.domain.Student;
 
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TestServiceImplTest {
+   @Mock
     private IOService ioService;
+   @Mock
     private QuestionDao questionDao;
     private TestServiceImpl testService;
 
     @BeforeEach
     void setUp() {
-        ioService = mock(IOService.class);
-        questionDao = mock(QuestionDao.class);
         testService = new TestServiceImpl(ioService, questionDao);
     }
 
@@ -44,10 +47,10 @@ class TestServiceImplTest {
         );
 
         when(questionDao.findAll()).thenReturn(questions);
-        when(ioService.readString("")).thenReturn("1").thenReturn("1");
+        when(ioService.readString()).thenReturn("1").thenReturn("1");
 
         //Act
-        testService.executeTest();
+        testService.executeTestFor(new Student("FirstName", "LastName"));
 
         //Assert
         verify(ioService).printFormattedLine("Please answer the questions below:");
@@ -64,10 +67,10 @@ class TestServiceImplTest {
         Question question = new Question("Sample question?", answers);
 
         when(questionDao.findAll()).thenReturn(List.of(question));
-        when(ioService.readString("")).thenReturn("1");
+        when(ioService.readString()).thenReturn("1");
 
         // Act
-        testService.executeTest();
+        testService.executeTestFor(new Student("FirstName", "LastName"));
 
         // Assert
         verify(ioService).printFormattedLine("Sample question?");

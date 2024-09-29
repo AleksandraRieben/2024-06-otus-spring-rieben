@@ -3,8 +3,9 @@ package ru.otus.hw.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.otus.hw.dao.QuestionDao;
-import ru.otus.hw.domain.Answer;
 import ru.otus.hw.domain.Question;
+import ru.otus.hw.domain.Student;
+import ru.otus.hw.domain.TestResult;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,72 +20,24 @@ public class TestServiceImpl implements TestService {
     private List<Question> questions;
 
     @Override
-    public void executeTest() {
-        ioService.printFormattedLine("Please answer the questions below:");
-        ioService.printFormattedLine("----------------------------------");
-        printQuestionsAndAnswers();
-        printExamResult();
-    }
+    public TestResult executeTestFor(Student student) {
+        ioService.printLine("");
+        ioService.printFormattedLine("Please answer the questions below%n");
+        var questions = questionDao.findAll();
+        var testResult = new TestResult(student);
 
-    private void printQuestionsAndAnswers() {
-        this.questions = questionDao.findAll();
-        questions.forEach(question -> {
+        for (var question: questions) {
+            var isAnswerValid = false;
+            // Задать вопрос, получить ответ
             ioService.printFormattedLine(question.text());
-            ioService.printFormattedLine("----------------------------------");
-            List<Answer> answers = question.answers();
-            for (int i = 0; i < answers.size(); i++) {
-                ioService.printFormattedLine((i + 1) + ". " + answers.get(i).text());
-            }
-            ioService.printFormattedLine("----------------------------------");
-            ioService.printFormattedLine("Please select one of the answers:");
-
-            int selectedOption = selectOption(question);
-
-            printAnswer(selectedOption, answers);
-        });
-    }
-
-    private int selectOption(Question question) {
-        int selectedOption;
-        while (true) {
-            String input = ioService.readString("");
-            try {
-                selectedOption = Integer.parseInt(input);
-                if (selectedOption < 1 || selectedOption > question.answers().size()) {
-                    throw new NumberFormatException();
-                }
-                break;
-            } catch (NumberFormatException e) {
-                ioService.printLine("Invalid input. Please select a number between 1 and " + question.answers().size() + ".");
-            }
+            question.answers().forEach(answer -> {
+                ioService.printLine(answer.text());
+            });
+            int selectedAnswer = ioService.readIntForRange(0, question.answers().size(), "error");
+            isAnswerValid = question.answers().get(selectedAnswer - 1).isCorrect();
+            testResult.applyAnswer(question, isAnswerValid);
         }
-        return selectedOption;
-    }
-
-    private void printAnswer(int selectedOption, List<Answer> answers) {
-        Answer selectedAnswer = answers.get(selectedOption - 1);
-        if (selectedAnswer.isCorrect()) {
-            ioService.printLine("Correct! The answer is: " + selectedAnswer.text());
-            correctAnswers.incrementAndGet();
-        } else {
-            ioService.printLine("Incorrect. The correct answer is: " + getCorrectAnswer(answers));
-        }
-    }
-
-    private String getCorrectAnswer(List<Answer> answers) {
-        return answers.stream()
-                .filter(Answer::isCorrect)
-                .map(Answer::text)
-                .findFirst()
-                .orElse("No correct answer found");
-    }
-
-    private void printExamResult() {
-        ioService.printFormattedLine("------------RESULT:------------");
-        ioService.printFormattedLine(hasPassedExam() ? "You have passed the exam" : "Sorry, you have to repeat it.");
-    }
-
-    private boolean hasPassedExam() {
-        return correctAnswers.get() >= questions.size() / 2;
+        return testResult;
     }
 }
+

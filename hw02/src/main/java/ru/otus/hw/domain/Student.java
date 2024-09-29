@@ -1,4 +1,7 @@
 package ru.otus.hw.domain;
 
-public record Student(String surname, String lastName) {
+public record Student(String firstName, String lastName) {
+    public String getFullName() {
+        return String.format("%s %s", firstName, lastName);
+    }
 }
